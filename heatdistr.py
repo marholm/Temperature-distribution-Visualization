@@ -3,10 +3,8 @@ import numpy as np
 # Physics problem: Tempretature distribution 
 
 def main():
-    # Create nXn matrix
-    # Set all initial and constant values: Middle and sides
-
     # Initialize all lattice sites
+    # Set boundary conditions
 
     N = 20                      # variable for N
     n = int(round(N/2))         # variable for N/2
@@ -35,14 +33,39 @@ def main():
 
     # Set temperature at matrix center to 212
     # Center is defined fom. row N(0.35) tom. N(0.7) 
-    # print('r: ', r, '  a: ', a)
     for row in range(r, a):
         for col in range(r, a):
             heat_matrix[row][col] = 212
     
-    
-
+    print('The initialized matrix:')
+    print('')
     print(heat_matrix)
+
+    # TODO: Create main loop for setting values for rest of the matrix
+
+    delta = 50
+    tolerance = 5
+    IMAX = N-2
+    JMAX = N-2
+
+    while delta > tolerance:
+        for i in range(1, IMAX):
+            for j in range(1, JMAX):
+                
+                west_neighbour = heat_matrix[IMAX][j] if (i==1) else heat_matrix[i-1][j]
+                east_neighbour = heat_matrix[1][j] if (i==IMAX) else heat_matrix[i+1][j]
+                north_neighbour = heat_matrix[i][1] if (j==JMAX) else heat_matrix[i][j+1]
+                south_neighbour = heat_matrix[i][JMAX] if (j==1) else heat_matrix[i][j-1]
+                
+                c_old = heat_matrix[i][j]
+                c_new = (1/4)*(west_neighbour + east_neighbour + 
+                            north_neighbour + south_neighbour)
+
+                if (abs(c_old - c_new) > tolerance):
+                    delta = (c_old - c_new)
+
+
+
 
 
 
