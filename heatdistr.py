@@ -1,5 +1,6 @@
 import numpy as np
 import csv
+from numpy.lib.shape_base import column_stack
 import pandas as pd
 
 # Physics problem: Tempretature distribution 
@@ -8,7 +9,7 @@ def main():
     # Initialize all lattice sites
     # Set boundary conditions
 
-    N = 10                      # variable for N
+    N = 20                      # variable for N
     n = int(round(N/2))         # variable for N/2
     r = int(round(N*(0.35)))    # variable for N*0.35
     a = int(round(N*(0.7)))     # variable for N*0.7
@@ -52,6 +53,7 @@ def main():
     print('')
     
     
+    
     # TODO: Create main loop for setting values for rest of the matrix
     # so delta is how much the value at a cell has changed from one iteration
     # to the next. Want to stop iteration when values stop changing.
@@ -62,7 +64,7 @@ def main():
     JMAX = N-1
     max_iterations = 500
     iterations = 1
-
+    """
     # main loop
     while (delta > tolerance and iterations < max_iterations):
         # reset delta before next iteration of the matrix
@@ -88,11 +90,12 @@ def main():
 
                 # print('c_new[',i,'][',j,']:',c_new)
                 
-                # Only want to record the change if its bigger than 1/2 degree
+                # Want to check that the solution has not stabilised yet by checking the change
                 if (abs(c_current - c_new) > tolerance):
                     # the delta variable stores the difference 
-                    delta += (c_current - c_new)
-                    heat_matrix[i][j] = c_new
+                    delta += abs(c_current - c_new)
+                # Update cell value
+                heat_matrix[i][j] = c_new
 
         iterations += 1
                 
@@ -101,15 +104,24 @@ def main():
     print('Heat matrix post iterations: ')
     print('')
     print(heat_matrix)
-    
-    
-    # TODO: Write result to csv-file to be read by paraview
-    # convert numpy array to pandas dataframe
-    data_frame = pd.DataFrame(heat_matrix)
+    """
 
-    # save dataframe as csv file
-    data_frame.to_csv('heat_data.csv')
-    
+    # Convert the data to (x, y, value)-format to be read by paraview
+    C = np.zeros((IMAX*JMAX, 3))
+    R = list(np.arange(0,IMAX*JMAX))
+    for i in range(IMAX):
+        for j in range(JMAX):
+            r = R.pop(0)
+            C[r, 0] = i
+            C[r, 1] = j
+            C[r, 2] = heat_matrix[i, j]
 
+    # Write result to csv-file to be read by paraview
+    # 1. convert numpy array to pandas dataframe
+    data_frame = pd.DataFrame(C)
+
+    # 2. save dataframe as csv file
+    data_frame.to_csv('heat_data.csv', index=False) 
+            
 
 RUN_MAIN = main()
