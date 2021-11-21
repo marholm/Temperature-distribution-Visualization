@@ -64,7 +64,7 @@ def main():
     JMAX = N-1
     max_iterations = 500
     iterations = 1
-    """
+    
     # main loop
     while (delta > tolerance and iterations < max_iterations):
         # reset delta before next iteration of the matrix
@@ -104,7 +104,7 @@ def main():
     print('Heat matrix post iterations: ')
     print('')
     print(heat_matrix)
-    """
+    
 
     # Convert the data to (x, y, value)-format to be read by paraview
     C = np.zeros((IMAX*JMAX, 3))
@@ -114,14 +114,18 @@ def main():
             r = R.pop(0)
             C[r, 0] = i
             C[r, 1] = j
-            C[r, 2] = heat_matrix[i, j]
+            C[r, 2] = heat_matrix[i][j]
+    
+    print('The matrix C:')
+    #print(C)
 
     # Write result to csv-file to be read by paraview
     # 1. convert numpy array to pandas dataframe
     data_frame = pd.DataFrame(C)
 
     # 2. save dataframe as csv file
-    data_frame.to_csv('heat_data.csv', index=False) 
+    data_frame.to_csv('heat_data2.csv', index=False) 
+
             
 
 RUN_MAIN = main()
