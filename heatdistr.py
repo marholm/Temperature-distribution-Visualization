@@ -2,6 +2,8 @@ import numpy as np
 import csv
 from numpy.lib.shape_base import column_stack
 import pandas as pd
+import sys
+np.set_printoptions(threshold=sys.maxsize)
 
 # Physics problem: Tempretature distribution 
 
@@ -21,11 +23,13 @@ def main():
     # print('Heat matrix initialized with zeros:')
     # print(heat_matrix)
     # print('')
+    
 
     # Set the unknown values to a reasonable value between 32 and 212
     for i in range(N):
         for j in range(N):
             heat_matrix[i][j] = 90
+    
     
     # Set constant temperature at rows 0 and N-1 (for all columns)
     heat_matrix[0] = 100
@@ -47,10 +51,10 @@ def main():
             heat_matrix[i][j] = 212
     
     print('')
-    print('Heat matrix initialized with correct initial values:')
+    #print('Heat matrix initialized with correct initial values:')
+    #print(heat_matrix)
     print('')
-    print(heat_matrix)
-    print('')
+    """
     
     
     
@@ -62,8 +66,9 @@ def main():
     tolerance = 0.5    # the lower tolerance, the more accuracy
     IMAX = N-1         
     JMAX = N-1
-    max_iterations = 500
+    max_iterations = 5000
     iterations = 1
+    
     
     # main loop
     while (delta > tolerance and iterations < max_iterations):
@@ -100,31 +105,34 @@ def main():
         iterations += 1
                 
     
-    print('')
-    print('Heat matrix post iterations: ')
-    print('')
-    print(heat_matrix)
+    #print('')
+    #print('Heat matrix post iterations: ')
+    #print('')
+    #print(heat_matrix)
+    """
     
-
+    
+    
     # Convert the data to (x, y, value)-format to be read by paraview
-    C = np.zeros((IMAX*JMAX, 3))
-    R = list(np.arange(0,IMAX*JMAX))
-    for i in range(IMAX):
-        for j in range(JMAX):
+    C = np.zeros((N*N, 3))
+    R = list(np.arange(0,(N*N)))
+    for i in range(N):       
+        for j in range(N):   
             r = R.pop(0)
-            C[r, 0] = i
+            C[r, 0] = i         
             C[r, 1] = j
             C[r, 2] = heat_matrix[i][j]
     
     print('The matrix C:')
-    #print(C)
+    print(C)
 
     # Write result to csv-file to be read by paraview
     # 1. convert numpy array to pandas dataframe
     data_frame = pd.DataFrame(C)
 
     # 2. save dataframe as csv file
-    data_frame.to_csv('heat_data2.csv', index=False) 
+    data_frame.to_csv('heat_data.csv', index=False) 
+    
 
             
 
