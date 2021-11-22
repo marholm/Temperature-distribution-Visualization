@@ -1,35 +1,28 @@
 import numpy as np
-import csv
 from numpy.lib.shape_base import column_stack
 import pandas as pd
 import sys
 np.set_printoptions(threshold=sys.maxsize)
+np.set_printoptions(precision=0)
 
-# Physics problem: Tempretature distribution 
+# Physics problem: Temperature distribution
 
 def main():
-    # Initialize all lattice sites
-    # Set boundary conditions
-
+    # Define necessary variables for setting initial conditions
     N = 20                      # variable for N
     n = int(round(N/2))         # variable for N/2
     r = int(round(N*(0.35)))    # variable for N*0.35
     a = int(round(N*(0.7)))     # variable for N*0.7
     
-    np.set_printoptions(precision=0)
+    # ------------- Set boundary conditions ------------------
     
     # Create NXN-matrix
     heat_matrix = np.zeros((N, N))
-    # print('Heat matrix initialized with zeros:')
-    # print(heat_matrix)
-    # print('')
     
-
     # Set the unknown values to a reasonable value between 32 and 212
     for i in range(N):
         for j in range(N):
-            heat_matrix[i][j] = 90
-    
+            heat_matrix[i][j] = 90 
     
     # Set constant temperature at rows 0 and N-1 (for all columns)
     heat_matrix[0] = 100
@@ -45,75 +38,53 @@ def main():
         heat_matrix[i][0] = int(100-((i-1)*X))
         heat_matrix[i][N-1] = int(100-((i-1)*X))
 
-    # Set temperature at matrix center to 212, center is defined fom. row N(0.35) tom. N(0.7) 
+    # Set temperature at matrix center to 212 (center is defined fom. row N(0.35) tom. N(0.7))
     for i in range(r, a):
         for j in range(r, a):
             heat_matrix[i][j] = 212
     
-    print('')
-    #print('Heat matrix initialized with correct initial values:')
-    #print(heat_matrix)
-    print('')
-    """
-    
-    
-    
-    # TODO: Create main loop for setting values for rest of the matrix
-    # so delta is how much the value at a cell has changed from one iteration
-    # to the next. Want to stop iteration when values stop changing.
+   
+    # ----------- Create main loop for laplace iterations ---------------
 
-    delta = 1
+
+    # Define necessary variables for iterations
+    delta = 1          # delta is how much the value at a cell has changed in one iteration
+                       # when values stop changing - the solution has stabilised and we can stop 
     tolerance = 0.5    # the lower tolerance, the more accuracy
     IMAX = N-1         
     JMAX = N-1
-    max_iterations = 5000
+    max_iterations = 50000      
     iterations = 1
     
     
-    # main loop
+    # Main loop
     while (delta > tolerance and iterations < max_iterations):
-        # reset delta before next iteration of the matrix
         delta = 0             
         for i in range(1, IMAX):
             for j in range(1, JMAX):
                 # cell value of iteration n
                 c_current = heat_matrix[i][j]
-                # print('c_current[',i,'][',j,']=',c_current)
                 
                 west_neighbour = heat_matrix[IMAX][j] if (i==1) else heat_matrix[i-1][j]
-                #print('west_neighbor: ', west_neighbour)
                 east_neighbour = heat_matrix[1][j] if (i==IMAX) else heat_matrix[i+1][j]
-                #print('east_neighbor: ', east_neighbour)
                 north_neighbour = heat_matrix[i][1] if (j==JMAX) else heat_matrix[i][j+1]
-                #print('north neighbor:', north_neighbour)
                 south_neighbour = heat_matrix[i][JMAX] if (j==1) else heat_matrix[i][j-1]
-                #print('south_neighbor: ', south_neighbour)
 
                 # cell value of iteration n+1
                 c_new = (0.25)*(west_neighbour + east_neighbour + 
                             north_neighbour + south_neighbour)
-
-                # print('c_new[',i,'][',j,']:',c_new)
                 
-                # Want to check that the solution has not stabilised yet by checking the change
+                # Want to check that the solution has not stabilised yet by checking the change/difference
                 if (abs(c_current - c_new) > tolerance):
                     # the delta variable stores the difference 
                     delta += abs(c_current - c_new)
+
                 # Update cell value
                 heat_matrix[i][j] = c_new
 
         iterations += 1
-                
     
-    #print('')
-    #print('Heat matrix post iterations: ')
-    #print('')
-    #print(heat_matrix)
-    """
-    
-    
-    
-    # Convert the data to (x, y, value)-format to be read by paraview
+    # ----------- Convert the resulting data to (x, y, value)-format si it can be read by paraview ----------------
     C = np.zeros((N*N, 3))
     R = list(np.arange(0,(N*N)))
     for i in range(N):       
@@ -122,18 +93,13 @@ def main():
             C[r, 0] = i         
             C[r, 1] = j
             C[r, 2] = heat_matrix[i][j]
-    
-    print('The matrix C:')
-    print(C)
 
-    # Write result to csv-file to be read by paraview
+    # ----------------- Write the result to a csv-file --------------------
     # 1. convert numpy array to pandas dataframe
     data_frame = pd.DataFrame(C)
 
     # 2. save dataframe as csv file
     data_frame.to_csv('heat_data.csv', index=False) 
     
-
-            
 
 RUN_MAIN = main()
